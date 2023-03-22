@@ -1,0 +1,147 @@
+implement sunday's algorithm in c++
+Sure, here's an implementation of Sunday's algorithm in C++:
+
+c++
+Copy code
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+vector<int> sunday(string text, string pattern) {
+    int n = text.length();
+    int m = pattern.length();
+
+    unordered_map<char, int> shift;
+    for (int i = 0; i < m; i++) {
+        shift[pattern[i]] = m - i;
+    }
+
+    vector<int> matches;
+    int i = 0;
+    while (i <= n - m) {
+        int j = 0;
+        while (j < m && text[i + j] == pattern[j]) {
+            j++;
+        }
+
+        if (j == m) {
+            matches.push_back(i);
+        }
+
+        if (i + m >= n) {
+            break;
+        }
+
+        char c = text[i + m];
+        if (shift.find(c) != shift.end()) {
+            i += shift[c];
+        } else {
+            i += m + 1;
+        }
+    }
+
+    return matches;
+}
+
+int main() {
+    string text = "ABCABDABCABDABCDABCDA";
+    string pattern = "ABCD";
+    vector<int> matches = sunday(text, pattern);
+
+    for (int i = 0; i < matches.size(); i++) {
+        cout << "Match found at index " << matches[i] << endl;
+    }
+
+    return 0;
+}
+In this implementation, the sunday function takes two strings as input: the text string in which to search for occurrences of the pattern string. The function returns a vector of integers representing the indices at which the pattern was found in the text.
+
+The implementation first calculates the length of the text and the pattern. It then creates a hash table called shift that maps each character in the pattern to the distance between the last occurrence of that character in the pattern and the end of the pattern. This table is used to determine how far to shift the pattern in the text when a mismatch occurs.
+
+The function then enters a loop that compares the pattern to the text starting at each index from 0 to n - m, where n is the length of the text and m is the length of the pattern. The inner loop checks if the characters in the pattern match the characters in the text starting at the current index. If the loop completes and j == m, then the pattern has been found at index i and the function adds i to the matches vector.
+
+If the inner loop completes and j != m, then a mismatch has occurred. The function checks if the current index plus the length of the pattern is greater than or equal to the length of the text. If it is, then the end of the text has been reached and the function breaks out of the loop. Otherwise, the function looks up the next character in the text in the shift table. If the character is in the table, the function shifts the pattern to the right by the corresponding distance. Otherwise, the function shifts the pattern to the right by the length of the pattern plus one.
+
+In the main function, we call the sunday function with the example text and pattern strings, and print out the indices at which the pattern was found in the text.
+
+
+
+
+Finity
+implement the Knutha Morisa-Pratta algorithm in c++, then explain to me how it works
+Sure! Here is an implementation of the Knuth-Morris-Pratt algorithm in C++:
+
+c++
+Copy code
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+vector<int> kmp(string text, string pattern) {
+    int n = text.length();
+    int m = pattern.length();
+
+    vector<int> pi(m, 0);
+    int j = 0;
+    for (int i = 1; i < m; i++) {
+        while (j > 0 && pattern[i] != pattern[j]) {
+            j = pi[j - 1];
+        }
+        if (pattern[i] == pattern[j]) {
+            j++;
+        }
+        pi[i] = j;
+    }
+
+    vector<int> matches;
+    j = 0;
+    for (int i = 0; i < n; i++) {
+        while (j > 0 && text[i] != pattern[j]) {
+            j = pi[j - 1];
+        }
+        if (text[i] == pattern[j]) {
+            j++;
+        }
+        if (j == m) {
+            matches.push_back(i - m + 1);
+            j = pi[j - 1];
+        }
+    }
+
+    return matches;
+}
+
+int main() {
+    string text = "ABCABDABCABDABCDABCDA";
+    string pattern = "ABCD";
+    vector<int> matches = kmp(text, pattern);
+
+    for (int i = 0; i < matches.size(); i++) {
+        cout << "Match found at index " << matches[i] << endl;
+    }
+
+    return 0;
+}
+In this implementation, the kmp function takes two strings as input: the text string in which to search for occurrences of the pattern string. The function returns a vector of integers representing the indices at which the pattern was found in the text.
+
+The implementation first calculates the length of the text and the pattern. It then initializes a vector pi of length m, which will store the "partial match table" for the pattern. The partial match table is an array of integers that stores the length of the longest proper suffix of each prefix of the pattern that is also a prefix of the pattern itself. The partial match table is used to determine how far to shift the pattern in the text when a mismatch occurs.
+
+The implementation then calculates the partial match table using an algorithm that is similar to the main loop of the Knuth-Morris-Pratt algorithm. Specifically, it initializes a variable j to 0 and iterates through the pattern string from the second character to the last. For each character pattern[i], the algorithm compares pattern[i] to pattern[j], where j is the largest value such that j < i and the prefix of the pattern of length j is also a suffix of the pattern of length i. If pattern[i] is equal to pattern[j], the algorithm increments j and sets pi[i] to j. Otherwise, the algorithm sets j to pi[j - 1] and repeats the comparison until either pattern[i] is equal to pattern[j] or j is equal to 0. Once the partial match table has been calculated, the function enters a loop that compares the pattern to the text starting at each index from 0 to n - m. The loop is similar to the main loop of the naive string matching algorithm, but it uses the partial match table to determine how far to shift the pattern when a mismatch occurs.
+
+For each index i, the algorithm initializes a variable j to
+
+
+
+
+Finity
+continue
+current index in the pattern (0) and iterates through the text starting at index i. For each character text[i], the algorithm compares text[i] to pattern[j]. If text[i] is equal to pattern[j], the algorithm increments j. Otherwise, the algorithm sets j to pi[j - 1] and repeats the comparison until either text[i] is equal to pattern[j] or j is equal to 0. If j is equal to m, the algorithm has found a match and adds i - m + 1 to the vector of matches. The algorithm then sets j to pi[j - 1] to continue searching for matches in the text.
+
+The main advantage of the Knuth-Morris-Pratt algorithm over the naive string matching algorithm is that it avoids unnecessary comparisons by taking advantage of information about the pattern that is known in advance. Specifically, the partial match table allows the algorithm to skip over parts of the text that cannot possibly match the pattern. This can result in a significant speedup when searching for patterns in long texts.
+
+I hope that helps! Let me know if you have any further questions.
